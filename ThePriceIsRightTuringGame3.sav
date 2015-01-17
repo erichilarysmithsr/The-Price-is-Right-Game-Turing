@@ -1,0 +1,439 @@
+%Set screen graphics to 640 by 480 pixels.
+process music
+    Music.PlayFile ("enterfile.mp3")
+end music
+setscreen ("graphics:640;480,nocursor")
+
+%Declare all variables.
+var username : string
+var proceed : int
+var userguess : int
+var comp1guess : int
+var comp2guess : int
+var comp3guess : int
+var productnumb : int
+var productrand : int
+var loadingcount : int
+%Initiate variables to starting values.
+proceed := 0
+productrand := 0
+productnumb := 0
+loadingcount := 0
+randomize
+
+%Initiate variables for different fonts.
+var font4 : int
+font4 := Font.New ("Arial:20")
+var font3 : int
+font3 := Font.New ("Berlin Sans FB Demi:20")
+var font5 : int
+font5 := Font.New ("Berlin Sans FB Demi:40")
+var font6 : int
+font6 := Font.New ("Arial:20")
+var font7 : int
+font7 := Font.New ("Arial:10")
+var font8 : int
+font8 := Font.New ("Arial:20")
+var font9 : int
+font9 := Font.New ("Arial:42")
+
+%Display title screen.
+var logo : int
+logo := Pic.FileNew ("titlescreen...jpg")
+Pic.Draw (logo, 0, 0, 1)
+
+var iXMOUSE, iYMOUSE, iBNUMVAR, iBUDVAR : int % variables for use of mouse
+var iXVALUE : int % variable to keep track of x value of shape
+
+%Draw boxes around Start and Instructions buttons to find out where to click for mouse commands.
+drawbox (145, 5, 264, 79, 7)
+drawbox (265, 5, 465, 79, 7)
+
+% wait for user to select (click) with the mouse
+Mouse.ButtonWait ("down", iXMOUSE, iYMOUSE, iBNUMVAR, iBUDVAR)
+% check if they clicked play or instructions
+
+if iXMOUSE >= 145 and iXMOUSE <= 264 and iYMOUSE >= 5 and iYMOUSE <= 79 then
+    %Erase anything previously on the screen then draw fill for background.
+    cls
+    drawfill (1, 1, 79, 7)
+    %Display message saying, "Come on Down! You're the next contestant on the price is right."
+    Font.Draw ("Come on Down! You're the", 10, 350, font5, 7)
+    Font.Draw ("next contestsant on", 120, 280, font5, 7)
+    Font.Draw ("the Price is right!", 130, 210, font5, 7)
+
+    %Play file to go with message.
+    fork music
+
+    %Create a loadup bar under the message by drawing and erasing dots to make it look like it's loading.
+    %Exit when it has done the full rotation 3 times.
+    loop
+	Font.Draw ("Loading...", 280, 150, font6, 79)
+	Font.Draw ("Loading.", 280, 150, font6, 7)
+	delay (500)
+	Font.Draw ("Loading..", 280, 150, font6, 7)
+	delay (500)
+	Font.Draw ("Loading...", 280, 150, font6, 7)
+	delay (500)
+	loadingcount := loadingcount + 1
+	exit when loadingcount = 1 %Fix to three when done game.
+    end loop
+
+    %Set background for game screen.
+    var mypic : int
+    mypic := Pic.FileNew ("GameScreen.jpg")
+    Pic.Draw (mypic, 0, 0, 2)
+
+    %Draw a whitebox with a border outline to gather information from the user.
+    %This will be used because the text can be visible, and not over the picture.
+    drawfillbox (10, 470, 630, 370, 0)
+    drawbox (11, 469, 629, 371, 7)
+
+    %Initiatiate loop to gather users initials, name wont fit into the tag so initials work.
+    loop
+	Font.Draw ("Enter your initials:", 20, 445, font3, 7)
+	locate (2, 32)
+	get username
+
+	%If the user entered more than 4 letters than make them re-enter it.
+	if length (username) >= 5 then
+
+	    Font.Draw ("Sorry that's too long,", 350, 445, font7, 7)
+	    Font.Draw ("please re-enter your intials,", 350, 430, font7, 7)
+	    Font.Draw ("maximum # of characters is 4.", 350, 415, font7, 7)
+	    drawfillbox (240, 465, 340, 373, 0)
+	else
+	    %If they entered correctly, let them proceed.
+	    proceed := proceed + 1
+	end if
+	exit when proceed = 1
+    end loop
+
+    %Initiate loop for the products.
+    loop
+
+	%Draw over everything with the background and name so that the white box goes away.
+	mypic := Pic.FileNew ("GameScreen.jpg")
+	Pic.Draw (mypic, 0, 0, 2)
+	Font.Draw (username, 55, 115, font4, 7)
+
+	%Draw a banner which will introduce each product.
+	%To draw product sign - mid rectangle.
+	drawline (230, 380, 410, 380, 7)
+	drawline (230, 420, 410, 420, 7)
+	%Triangles on product sign.
+	drawline (230, 380, 200, 400, 7)
+	drawline (230, 420, 200, 400, 7)
+	drawline (410, 420, 440, 400, 7)
+	drawline (410, 380, 440, 400, 7)
+	drawfill (380, 400, 0, 7)
+	%Draw lines connecting to edges.
+	Draw.ThickLine (440, 400, 640, 400, 3, 0)
+	Draw.ThickLine (200, 400, 0, 400, 3, 0)
+
+	%Randomize integer which will be used to pick a product.
+	randint (productrand, 1, 6)
+	var flag1, flag2, flag3, flag4, flag5, flag6 : int := 0
+
+	%Add one to the product counter so that it will be showed in the banner.
+	%As well as keep track of howmany products have gone by. 
+	%If the randomized product number is ___ then white "Product _" in banner.
+	%Then 2 seconds later display product in a box in the centre of the screen.
+	if productrand = 1 and flag1 = 0 then
+	productnumb := productnumb + 1
+	flag1 := 1
+	
+	    Font.Draw ("Product " + intstr (productnumb), 260, 390, font8, 7)
+
+	    delay (2000)
+
+	    Pic.Draw (mypic, 0, 0, 2)
+	    Font.Draw (username, 55, 115, font4, 7)
+
+	    drawfillbox (220, 320, 420, 460, 0)
+	    drawbox (221, 321, 419, 459, 7)
+
+	    var toaster : int
+	    toaster := Pic.FileNew ("toaster.jpg")
+	    Pic.Draw (toaster, 250, 322, 2)
+
+	    delay (3000)
+
+	    Pic.Draw (mypic, 0, 0, 2)
+	    Font.Draw (username, 55, 115, font4, 7)
+
+	    drawfillbox (10, 470, 630, 370, 0)
+	    drawbox (11, 469, 629, 371, 7)
+
+	    Font.Draw ("It's a Black & Decker Stainless Steel Toaster!", 20, 445, font3, 7)
+	    Font.Draw ("Enter the Price of this product:", 20, 415, font3, 7)
+
+	    locate (4, 50)
+	    get userguess
+
+	    randint (comp1guess, 1, 999)
+	    randint (comp2guess, 1, 999)
+	    randint (comp3guess, 1, 999)
+
+
+	    Font.Draw (intstr (userguess), 21, 45, font9, 7)
+	    Font.Draw (intstr (comp1guess), 180, 45, font9, 7)
+	    Font.Draw (intstr (comp2guess), 336, 45, font9, 7)
+	    Font.Draw (intstr (comp3guess), 494, 45, font9, 7)
+
+	    Font.Draw ("The actual price of the Toaster is $40!", 20, 385, font3, 7)
+	    
+	    delay (5000)
+
+	    %If the randomized product number is ___ then white "Product _" in banner.
+	    %Then 2 seconds later display product in a box in the centre of the screen.
+	elsif productrand = 2 and flag2= 0 then
+	productnumb := productnumb + 1
+	flag2 := 1
+	    Font.Draw ("Product " + intstr (productnumb), 260, 390, font8, 7)
+
+	    delay (2000)
+
+	    Pic.Draw (mypic, 0, 0, 2)
+	    Font.Draw (username, 55, 115, font4, 7)
+
+	    drawfillbox (220, 320, 420, 460, 0)
+	    drawbox (221, 321, 419, 459, 7)
+
+	    var treadmill : int
+	    treadmill := Pic.FileNew ("treadmill.jpg")
+	    Pic.Draw (treadmill, 250, 322, 2)
+
+	    delay (3000)
+
+	    Pic.Draw (mypic, 0, 0, 2)
+	    Font.Draw (username, 55, 115, font4, 7)
+
+	    drawfillbox (10, 470, 630, 370, 0)
+	    drawbox (11, 469, 629, 371, 7)
+
+	    Font.Draw ("It's Weslo Crosswalk Treadmill!", 20, 445, font3, 7)
+	    Font.Draw ("Enter the Price of this product:", 20, 415, font3, 7)
+
+	    locate (4, 50)
+	    get userguess
+
+	    randint (comp1guess, 1, 999)
+	    randint (comp2guess, 1, 999)
+	    randint (comp3guess, 1, 999)
+
+
+	    Font.Draw (intstr (userguess), 21, 45, font9, 7)
+	    Font.Draw (intstr (comp1guess), 180, 45, font9, 7)
+	    Font.Draw (intstr (comp2guess), 336, 45, font9, 7)
+	    Font.Draw (intstr (comp3guess), 494, 45, font9, 7)
+	    
+	    Font.Draw ("The actual price of the Treadmill is $380!", 20, 385, font3, 7)
+
+	    delay (5000)
+
+	    %If the randomized product number is ___ then white "Product _" in banner.
+	    %Then 2 seconds later display product in a box in the centre of the screen.
+	elsif productrand = 3 and flag3 = 0 then
+	productnumb := productnumb + 1
+	flag3 := 1
+	    Font.Draw ("Product " + intstr (productnumb), 260, 390, font8, 7)
+
+	    delay (2000)
+
+	    Pic.Draw (mypic, 0, 0, 2)
+	    Font.Draw (username, 55, 115, font4, 7)
+
+	    drawfillbox (220, 320, 420, 460, 0)
+	    drawbox (221, 321, 419, 459, 7)
+
+	    var tv : int
+	    tv := Pic.FileNew ("tv.jpg")
+	    Pic.Draw (tv, 250, 322, 2)
+
+	    delay (3000)
+
+	    Pic.Draw (mypic, 0, 0, 2)
+	    Font.Draw (username, 55, 115, font4, 7)
+
+	    drawfillbox (10, 470, 630, 370, 0)
+	    drawbox (11, 469, 629, 371, 7)
+
+	    Font.Draw ("It's a LG 47 inch 1080p LED TV!", 20, 445, font3, 7)
+	    Font.Draw ("Enter the Price of this product:", 20, 415, font3, 7)
+
+	    locate (4, 50)
+	    get userguess
+
+	    randint (comp1guess, 1, 999)
+	    randint (comp2guess, 1, 999)
+	    randint (comp3guess, 1, 999)
+
+
+	    Font.Draw (intstr (userguess), 21, 45, font9, 7)
+	    Font.Draw (intstr (comp1guess), 180, 45, font9, 7)
+	    Font.Draw (intstr (comp2guess), 336, 45, font9, 7)
+	    Font.Draw (intstr (comp3guess), 494, 45, font9, 7)
+	    
+	    Font.Draw ("The actual price of the T.V. is $700!", 20, 385, font3, 7)
+
+	    delay (5000)
+
+	    %If the randomized product number is ___ then white "Product _" in banner.
+	    %Then 2 seconds later display product in a box in the centre of the screen.
+	elsif productrand = 4 and flag4 = 0 then
+	productnumb := productnumb + 1
+	flag4 := 1
+	    Font.Draw ("Product " + intstr (productnumb), 260, 390, font8, 7)
+
+	    delay (2000)
+
+	    Pic.Draw (mypic, 0, 0, 2)
+	    Font.Draw (username, 55, 115, font4, 7)
+
+	    drawfillbox (220, 320, 420, 460, 0)
+	    drawbox (221, 321, 419, 459, 7)
+
+	    var Vaccum : int
+	    Vaccum := Pic.FileNew ("Vaccum.jpg")
+	    Pic.Draw (Vaccum, 250, 322, 2)
+
+	    delay (3000)
+
+	    Pic.Draw (mypic, 0, 0, 2)
+	    Font.Draw (username, 55, 115, font4, 7)
+
+	    drawfillbox (10, 470, 630, 370, 0)
+	    drawbox (11, 469, 629, 371, 7)
+
+	    Font.Draw ("It's a Dirt Devil Total Vision Vacuum!", 20, 445, font3, 7)
+	    Font.Draw ("Enter the Price of this product:", 20, 415, font3, 7)
+
+	    locate (4, 50)
+	    get userguess
+
+	    randint (comp1guess, 1, 999)
+	    randint (comp2guess, 1, 999)
+	    randint (comp3guess, 1, 999)
+
+
+	    Font.Draw (intstr (userguess), 21, 45, font9, 7)
+	    Font.Draw (intstr (comp1guess), 180, 45, font9, 7)
+	    Font.Draw (intstr (comp2guess), 336, 45, font9, 7)
+	    Font.Draw (intstr (comp3guess), 494, 45, font9, 7)
+	    
+	    Font.Draw ("The actual price of the Vacuum is $90!", 20, 385, font3, 7)
+
+	    delay (5000)
+
+	    %If the randomized product number is ___ then white "Product _" in banner.
+	    %Then 2 seconds later display product in a box in the centre of the screen.
+	elsif productrand = 5 and flag5 = 0 then
+	productnumb := productnumb + 1
+	flag5 := 1
+	    Font.Draw ("Product " + intstr (productnumb), 260, 390, font8, 7)
+
+	    delay (2000)
+
+	    Pic.Draw (mypic, 0, 0, 2)
+	    Font.Draw (username, 55, 115, font4, 7)
+
+	    drawfillbox (220, 320, 420, 460, 0)
+	    drawbox (221, 321, 419, 459, 7)
+
+	    var camera : int
+	    camera := Pic.FileNew ("camera.jpg")
+	    Pic.Draw (camera, 250, 322, 2)
+
+	    delay (3000)
+
+	    Pic.Draw (mypic, 0, 0, 2)
+	    Font.Draw (username, 55, 115, font4, 7)
+
+	    drawfillbox (10, 470, 630, 370, 0)
+	    drawbox (11, 469, 629, 371, 7)
+
+	    Font.Draw ("It's a Canon PowerShot A2200 Digital Camera!", 20, 445, font3, 7)
+	    Font.Draw ("Enter the Price of this product:", 20, 415, font3, 7)
+
+	    locate (4, 50)
+	    get userguess
+
+	    randint (comp1guess, 1, 999)
+	    randint (comp2guess, 1, 999)
+	    randint (comp3guess, 1, 999)
+
+
+	    Font.Draw (intstr (userguess), 21, 45, font9, 7)
+	    Font.Draw (intstr (comp1guess), 180, 45, font9, 7)
+	    Font.Draw (intstr (comp2guess), 336, 45, font9, 7)
+	    Font.Draw (intstr (comp3guess), 494, 45, font9, 7)
+	    
+	    Font.Draw ("The actual price of the Camera is $130!", 20, 385, font3, 7)
+
+	    delay (5000)
+
+	    %If the randomized product number is ___ then white "Product _" in banner.
+	    %Then 2 seconds later display product in a box in the centre of the screen.
+	elsif productrand = 6 and flag6 = 0 then
+	productnumb := productnumb + 1
+	flag6 := 1
+	
+	    Font.Draw ("Product " + intstr (productnumb), 260, 390, font8, 7)
+
+	    delay (2000)
+
+	    Pic.Draw (mypic, 0, 0, 2)
+	    Font.Draw (username, 55, 115, font4, 7)
+
+	    drawfillbox (220, 320, 420, 460, 0)
+	    drawbox (221, 321, 419, 459, 7)
+
+	    var GPS : int
+	    GPS := Pic.FileNew ("GPS.jpg")
+	    Pic.Draw (GPS, 250, 322, 2)
+
+	    delay (3000)
+
+	    Pic.Draw (mypic, 0, 0, 2)
+	    Font.Draw (username, 55, 115, font4, 7)
+
+	    drawfillbox (10, 470, 630, 370, 0)
+	    drawbox (11, 469, 629, 371, 7)
+
+	    Font.Draw ("It's a TomTom GO 2405 GPS!", 20, 445, font3, 7)
+	    Font.Draw ("Enter the Price of this product:", 20, 415, font3, 7)
+
+	    locate (4, 50)
+	    get userguess
+
+	    randint (comp1guess, 1, 999)
+	    randint (comp2guess, 1, 999)
+	    randint (comp3guess, 1, 999)
+
+
+	    Font.Draw (intstr (userguess), 21, 45, font9, 7)
+	    Font.Draw (intstr (comp1guess), 180, 45, font9, 7)
+	    Font.Draw (intstr (comp2guess), 336, 45, font9, 7)
+	    Font.Draw (intstr (comp3guess), 494, 45, font9, 7)
+	    
+	    Font.Draw ("The actual price of the GPS is $180!", 20, 385, font3, 7)
+
+	    delay (5000)
+
+	end if
+	%Leave the loop when 3 products have been displayed.
+	exit when productnumb = 3
+    end loop
+
+    %Else if the user clicked on the instructions button then display intsructions.
+elsif iXMOUSE >= 265 and iXMOUSE <= 465 and iYMOUSE >= 5 and iYMOUSE <= 79 then
+    var mypic : int
+    cls
+end if
+
+
+
+
+
+
